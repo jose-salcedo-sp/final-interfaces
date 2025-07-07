@@ -20,7 +20,11 @@ export function ChatForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    { role: "assistant", content: "Es gay chiquito?" },
+    { role: "user", content: "ghi" },
+    { role: "assistant", content: "chiquito macuarro" },
+  ]);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   function scrollToBottom() {
