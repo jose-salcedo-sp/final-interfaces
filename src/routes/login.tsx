@@ -3,11 +3,15 @@ import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/stores/auth";
 import { Label } from "@radix-ui/react-label";
 import { useForm } from "@tanstack/react-form";
-import { Link } from "react-router-dom";
+import { LogInIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 export default function Login() {
+  const navigate = useNavigate();
   const authStore = useAuthStore();
+
+  console.log(authStore)
 
   const form = useForm({
     defaultValues: {
@@ -143,12 +147,11 @@ export default function Login() {
           </Button>
         </div>
 
-        <Link to="/signup" className="text-center text-sm">
+        <Button variant={"outline"} onClick={() => navigate("/signup")}>
+          <LogInIcon />
           Don't have an account?{" "}
-          <span className="underline underline-offset-4">
-              Sign up
-          </span>
-        </Link>
+          <span className="underline underline-offset-4">Sign up</span>
+        </Button>
       </div>
     </div>
   );

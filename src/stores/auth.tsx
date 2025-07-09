@@ -24,11 +24,17 @@ type Credentials = {
   password: string;
 };
 
+type SignUpForm = {
+  email: string;
+  password: string;
+  full_name: string;
+};
+
 type AuthState = {
   user: PublicUser | null;
   isAuthenticated: boolean;
   login: (user: Credentials) => Promise<void>;
-  signup: (user: Credentials) => Promise<void>;
+  signup: (user: SignUpForm) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -85,7 +91,7 @@ export const useAuthStore = create<AuthState>()(
           console.error("Google login error:", err);
         }
       },
-      signup: async ({ email, password }) => {
+      signup: async ({ email, password, full_name }) => {
         try {
           const userCredential = await createUserWithEmailAndPassword(
             auth,
@@ -96,13 +102,24 @@ export const useAuthStore = create<AuthState>()(
           const user: PublicUser = {
             uid: userCredential.user.uid,
             email: userCredential.user.email,
-            displayName: userCredential.user.displayName,
+            displayName: full_name,
           };
+
+          const userRef = doc(db, "users", user.uid);
+          const snap = await getDoc(userRef);
+
+          if (!snap.exists()) {
+            await setDoc(userRef, {
+              email,
+              full_name,
+              createdAt: new Date(),
+            });
+          }
 
           set({ user, isAuthenticated: true });
           redirect({ to: "/about" });
         } catch (err) {
-          console.error("Google login error:", err);
+          console.error("Signup error:", err);
         }
       },
       logout: async () => {

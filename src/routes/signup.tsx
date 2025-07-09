@@ -3,13 +3,14 @@ import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/stores/auth";
 import { Label } from "@radix-ui/react-label";
 import { useForm } from "@tanstack/react-form";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, LogInIcon } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 export default function Signup() {
   const authStore = useAuthStore();
+  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -22,10 +23,7 @@ export default function Signup() {
       confirm_password: "",
     },
     onSubmit: async ({ value }) => {
-      await authStore.signup?.({
-        email: value.email,
-        password: value.password,
-      });
+      await authStore.signup(value);
     },
   });
 
@@ -115,11 +113,11 @@ export default function Signup() {
               onChange: ({ value }) => {
                 const result = z
                   .string()
-                  .min(4, {
-                    message: "Password must be at least 4 characters long",
+                  .min(6, {
+                    message: "Password must be at least 6 characters long",
                   })
-                  .max(10, {
-                    message: "Password must be at most 10 characters long",
+                  .max(20, {
+                    message: "Password must be at most 20 characters long",
                   })
                   .safeParse(value);
                 return result.success
@@ -136,7 +134,6 @@ export default function Signup() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Create password..."
-                    className="border-none"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
@@ -218,10 +215,11 @@ export default function Signup() {
             </Button>
           </div>
 
-          <Link to="/login" className="text-center text-sm">
+          <Button variant={"outline"} onClick={() => navigate("/login")}>
+            <LogInIcon />
             Already have an account?{" "}
             <span className="underline underline-offset-4">Log in</span>
-          </Link>
+          </Button>
         </div>
       </form>
     </div>
