@@ -2,25 +2,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/stores/auth";
 import { Label } from "@radix-ui/react-label";
-import { createFileRoute } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
+import { Link } from "react-router-dom";
 import { z } from "zod";
 
-export const Route = createFileRoute("/signup")({
-  component: RouteComponent,
-});
-
-function RouteComponent() {
+export default function Signup() {
   const authStore = useAuthStore();
 
   const form = useForm({
     defaultValues: {
       email: "",
       password: "",
+      confirm_password: ""
     },
     onSubmit: async ({ value }) => {
-      // Replace with your signup logic
-      await authStore.signup?.(value);
+      await authStore.signup?.({ email: value.email, password: value.password });
     },
   });
 
@@ -108,6 +104,30 @@ function RouteComponent() {
             )}
           </form.Field>
 
+          <form.Field
+            name="confirm_password"
+            validators={{
+              onChange: ({ value }) => value === form.state.values.password ? undefined : "Password must match",
+            }}
+          >
+            {(field) => (
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+                {field.state.meta.errors?.[0] && (
+                  <p className="text-sm text-red-500">
+                    {field.state.meta.errors[0]}
+                  </p>
+                )}
+              </div>
+            )}
+          </form.Field>
+
           <Button type="submit" className="w-full">
             Sign Up
           </Button>
@@ -134,12 +154,12 @@ function RouteComponent() {
             </Button>
           </div>
 
-          <div className="text-center text-sm">
+          <Link to="/login" className="text-center text-sm">
             Already have an account?{" "}
-            <a href="/login" className="underline underline-offset-4">
+            <span className="underline underline-offset-4">
               Log in
-            </a>
-          </div>
+            </span>
+          </Link>
         </div>
       </form>
     </div>

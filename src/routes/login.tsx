@@ -2,16 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/stores/auth";
 import { Label } from "@radix-ui/react-label";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
+import { Link } from "react-router-dom";
 import { z } from "zod";
 
-export const Route = createFileRoute("/login")({
-  component: RouteComponent,
-});
-
-function RouteComponent() {
-  const navigate = useNavigate();
+export default function Login() {
   const authStore = useAuthStore();
 
   const form = useForm({
@@ -148,13 +143,12 @@ function RouteComponent() {
           </Button>
         </div>
 
-        <div
-          className="text-center text-sm"
-          onClick={() => navigate({ to: "/signup" })}
-        >
-          Don&apos;t have an account?{" "}
-          <a className="underline underline-offset-4">Sign up</a>
-        </div>
+        <Link to="/signup" className="text-center text-sm">
+          Don't have an account?{" "}
+          <span className="underline underline-offset-4">
+              Sign up
+          </span>
+        </Link>
       </div>
     </div>
   );
