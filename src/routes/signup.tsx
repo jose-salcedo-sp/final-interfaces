@@ -3,20 +3,29 @@ import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/stores/auth";
 import { Label } from "@radix-ui/react-label";
 import { useForm } from "@tanstack/react-form";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { z } from "zod";
 
 export default function Signup() {
   const authStore = useAuthStore();
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const form = useForm({
     defaultValues: {
+      full_name: "",
       email: "",
       password: "",
-      confirm_password: ""
+      confirm_password: "",
     },
     onSubmit: async ({ value }) => {
-      await authStore.signup?.({ email: value.email, password: value.password });
+      await authStore.signup?.({
+        email: value.email,
+        password: value.password,
+      });
     },
   });
 
@@ -30,6 +39,39 @@ export default function Signup() {
               Sign up to start chatting
             </p>
           </div>
+
+          <form.Field
+            name="full_name"
+            validators={{
+              onChange: ({ value }) => {
+                const result = z
+                  .string()
+                  .min(3, "Full name must be at least 3 characters long")
+                  .safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0].message;
+              },
+            }}
+          >
+            {(field) => (
+              <div className="grid gap-2">
+                <Label htmlFor="full_name">Full name</Label>
+                <Input
+                  id="full_name"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+                {field.state.meta.errors?.[0] && (
+                  <p className="text-sm text-red-500">
+                    {field.state.meta.errors[0]}
+                  </p>
+                )}
+              </div>
+            )}
+          </form.Field>
 
           <form.Field
             name="email"
@@ -88,13 +130,23 @@ export default function Signup() {
           >
             {(field) => (
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
+                <Label htmlFor="password">Create password</Label>
+                <div className="flex w-full items-center gap-2">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Create password..."
+                    className="border-none"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                  </Button>
+                </div>
                 {field.state.meta.errors?.[0] && (
                   <p className="text-sm text-red-500">
                     {field.state.meta.errors[0]}
@@ -107,18 +159,30 @@ export default function Signup() {
           <form.Field
             name="confirm_password"
             validators={{
-              onChange: ({ value }) => value === form.state.values.password ? undefined : "Password must match",
+              onChange: ({ value }) =>
+                value === form.state.values.password
+                  ? undefined
+                  : "Password must match",
             }}
           >
             {(field) => (
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
+                <Label htmlFor="confirm_password">Confirm Password</Label>
+                <div className="flex w-full items-center gap-2">
+                  <Input
+                    id="confirm_password"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm password..."
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
+                  </Button>
+                </div>
                 {field.state.meta.errors?.[0] && (
                   <p className="text-sm text-red-500">
                     {field.state.meta.errors[0]}
@@ -156,9 +220,7 @@ export default function Signup() {
 
           <Link to="/login" className="text-center text-sm">
             Already have an account?{" "}
-            <span className="underline underline-offset-4">
-              Log in
-            </span>
+            <span className="underline underline-offset-4">Log in</span>
           </Link>
         </div>
       </form>
