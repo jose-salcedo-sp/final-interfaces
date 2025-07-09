@@ -10,9 +10,9 @@ export const Route = createRootRoute({
   beforeLoad: async ({ location }) => {
     const { isAuthenticated } = useAuthStore.getState();
 
-    if (!isAuthenticated && location.pathname !== "/chatbot") {
+    if (!isAuthenticated && location.pathname !== "/login") {
       throw redirect({
-        to: "/chatbot",
+        to: "/login",
         search: {
           redirect: location.href, // optional: pass redirect path
         },

@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { useChat } from "ai/react";
 import { AutoResizeTextarea } from "@/components/autoresize-textarea";
 import { Button } from "@/components/ui/button";
 import {
