@@ -1,17 +1,13 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { auth, db } from "@/lib/firebase";
 import {
-  signInWithPopup,
-  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  GoogleAuthProvider,
+  signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { auth, db } from "@/lib/firebase"; // ← Asegúrate de exportar `db` desde firebase.ts
-import { redirect } from "@tanstack/react-router";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-
-const provider = new GoogleAuthProvider();
+import { toast } from "sonner";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 type PublicUser = {
   uid: string;
@@ -35,7 +31,6 @@ type AuthState = {
   isAuthenticated: boolean;
   login: (user: Credentials) => Promise<void>;
   signup: (user: SignUpForm) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -62,33 +57,10 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: true,
           });
 
-          redirect({ to: "/about" });
-        } catch (err) {
+          toast.success(`Welcome back, ${firebaseUser.email || "user"}!`);
+        } catch (err: any) {
           console.error("Login error:", err);
-        }
-      },
-      loginWithGoogle: async () => {
-        try {
-          const credential = await signInWithPopup(auth, provider);
-          const firebaseUser = credential.user;
-
-          const user: PublicUser = {
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            displayName: firebaseUser.displayName,
-          };
-
-          // Optional: create user document if it doesn't exist
-          const userRef = doc(db, "users", user.uid);
-          const snap = await getDoc(userRef);
-          if (!snap.exists()) {
-            await setDoc(userRef, user);
-          }
-
-          set({ user, isAuthenticated: true });
-          redirect({ to: "/about" });
-        } catch (err) {
-          console.error("Google login error:", err);
+          toast.error(`Login failed: ${err.message || "An error occurred."}`);
         }
       },
       signup: async ({ email, password, full_name }) => {
@@ -98,7 +70,6 @@ export const useAuthStore = create<AuthState>()(
             email,
             password,
           );
-
           const user: PublicUser = {
             uid: userCredential.user.uid,
             email: userCredential.user.email,
@@ -117,15 +88,22 @@ export const useAuthStore = create<AuthState>()(
           }
 
           set({ user, isAuthenticated: true });
-          redirect({ to: "/about" });
-        } catch (err) {
+
+          toast.success(`Account created for ${email}!`);
+        } catch (err: any) {
           console.error("Signup error:", err);
+          toast.error(`Signup failed: ${err.message || "An error occurred."}`);
         }
       },
       logout: async () => {
-        await signOut(auth);
-        set({ user: null, isAuthenticated: false });
-        redirect({ to: "/login" });
+        try {
+          await signOut(auth);
+          set({ user: null, isAuthenticated: false });
+          toast.success("You have been logged out.");
+        } catch (err: any) {
+          console.error("Logout error:", err);
+          toast.error(`Logout failed: ${err.message || "An error occurred."}`);
+        }
       },
     }),
     {
