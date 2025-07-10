@@ -6,8 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function HomeScreen() {
     async function signOut() {
         await auth.signOut();
-        console.log(auth)
-        router.replace("/(tabs)/explore");
+        router.replace("/login");
     }
 
     return (
