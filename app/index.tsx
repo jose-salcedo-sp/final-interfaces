@@ -1,12 +1,12 @@
-import { Text, TextInput, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { auth } from "@/constants/firebase";
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
 } from "@firebase/auth";
 import { router } from "expo-router";
+import React, { useState } from "react";
+import { Text, TextInput, TouchableOpacity } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
     const [email, setEmail] = useState("");
@@ -24,6 +24,7 @@ export default function Index() {
         } catch (err: any) {
             console.error(err);
             alert("Sign in failed: " + err.message);
+            router.replace("/(tabs)"); //DELETE
         }
     }
 
