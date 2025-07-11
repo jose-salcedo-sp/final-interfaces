@@ -12,9 +12,14 @@ export default function AIChat() {
 
     return (
         <VStack className="w-full px-2 h-[90%]">
-            <Box className="flex flex-1 mt-10 w-full justify-center items-center">
+            <Box className="flex mt-10 w-full justify-center items-center">
                 <Text className="text-2xl font-semibold text-center w-2/3">
                     Welcome to Universidad Panamericana <Text className="text-2xl font-extrabold">AI assistant!</Text>
+                </Text>
+            </Box>
+            <Box className="flex flex-1 w-full justify-center items-center">
+                <Text className="text-3xl font-extrabold text-center w-2/3 text-up-red">
+                    Coming Soon!
                 </Text>
             </Box>
 
