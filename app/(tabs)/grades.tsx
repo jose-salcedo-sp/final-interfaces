@@ -12,12 +12,6 @@ import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 
 export default function Profile() {
     let current_gpa = 3.8
-  let career: string = "Computer Systems Engineering";
-  let career_start_date: string = "Aug 2022";
-  let career_end_date: string = "June 2027";
-  let career_status: string = "Enrolled";
-
-  let semester:string = "7th";
 
   let courses = [
   { courseName: "Calculus I", Grade: "B+", isCompleted: true },
