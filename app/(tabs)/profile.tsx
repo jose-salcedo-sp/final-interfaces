@@ -16,15 +16,24 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { router } from "expo-router";
 
+interface Course {
+  courseName: string;
+  grade: string;
+  isCompleted: boolean;
+}
+
 interface User {
   id: string;
   fullName: string;
   email: string;
-  password?: string;
-  career: string;
-  start_date: string;
-  end_date: string;
-  status: string;
+  studies: {
+    major:string
+    start_date: string;
+    end_date: string;
+    status: string;
+    semester: string;
+    courses: Course[]
+    };
 }
 
 
@@ -140,22 +149,22 @@ export default function Profile() {
               <VStack space="md">
                 <VStack space="xs">
                   <Heading size="md" className="text-up-white text-center">Career</Heading>
-                  <Text className="text-black bg-up-white text-center rounded-full px-4">{user.career}</Text>
+                  <Text className="text-black bg-up-white text-center rounded-full px-4">{user.studies.major}</Text>
                 </VStack>
 
                 <VStack space="xs">
                   <Heading size="md" className="text-up-white text-center">Start Date</Heading>
-                  <Text className="text-black bg-up-white text-center rounded-full px-4">{user.start_date}</Text>
+                  <Text className="text-black bg-up-white text-center rounded-full px-4">{user.studies.start_date}</Text>
                 </VStack>
 
                 <VStack space="xs">
                   <Heading size="md" className="text-up-white text-center">End Date</Heading>
-                  <Text className="text-black bg-up-white text-center rounded-full px-4">{user.end_date}</Text>
+                  <Text className="text-black bg-up-white text-center rounded-full px-4">{user.studies.end_date}</Text>
                 </VStack>
 
                 <VStack space="xs">
                   <Heading size="md" className="text-up-white text-center">Status</Heading>
-                  <Text className="text-black bg-up-white text-center rounded-full px-4">{user.status}</Text>
+                  <Text className="text-black bg-up-white text-center rounded-full px-4">{user.studies.status}</Text>
                 </VStack>
               </VStack>
             </Center>

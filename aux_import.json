@@ -1,0 +1,15 @@
+{
+  "courses": {
+    "course1": { "courseName": "Calculus I", "Grade": "B+", "isCompleted": true },
+    "course2": { "courseName": "General Chemistry", "Grade": "A-", "isCompleted": true },
+    "course3": { "courseName": "Introduction to Psychology", "Grade": "A", "isCompleted": true },
+    "course4": { "courseName": "English Composition", "Grade": "B", "isCompleted": true },
+    "course5": { "courseName": "CS Fundamentals", "Grade": "B", "isCompleted": false },
+    "course6": { "courseName": "Principles of Economics", "Grade": "A+", "isCompleted": false },
+    "course7": { "courseName": "Cell Biology", "Grade": "C+", "isCompleted": true },
+    "course8": { "courseName": "Linear Algebra", "Grade": "C", "isCompleted": false },
+    "course9": { "courseName": "Public Speaking", "Grade": "A", "isCompleted": true },
+    "course10": { "courseName": "Data Structures", "Grade": "D", "isCompleted": false },
+    "course11": { "courseName": "Databases", "Grade": "A", "isCompleted": true }
+  }
+}
