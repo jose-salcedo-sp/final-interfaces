@@ -1,14 +1,14 @@
-import { Tabs } from "expo-router";
-import React from "react";
-import { Platform } from "react-native";
 import { HapticTab } from "@/components/HapticTab";
+import Navbar from "@/components/Navbar";
+import { Box } from "@/components/ui/box";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { Box } from "@/components/ui/box";
+import { Tabs } from "expo-router";
+import React from "react";
+import { Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Navbar from "@/components/Navbar";
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();
