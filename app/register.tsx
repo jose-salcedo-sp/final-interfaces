@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { auth } from "@/constants/firebase";
-import {
-    signInWithEmailAndPassword,
-} from "@firebase/auth";
+import { auth, db } from "@/constants/firebase";
+import { createUserWithEmailAndPassword } from "@firebase/auth";
 import { router } from "expo-router";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Box } from "@/components/ui/box";
@@ -20,14 +18,21 @@ import { Heading } from "@/components/ui/heading";
 import { LogInIcon } from "lucide-react-native";
 import { Center } from "@/components/ui/center";
 import { Image } from "@/components/ui/image";
+import { ref, set } from "firebase/database";
 
-export default function Login() {
+export default function Register() {
+    const [fullname, setFullName] = useState("");
+
     const [email, setEmail] = useState("");
     const [emailError, setEmailError] = useState("");
 
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [confirmPasswordError, setConfirmPasswordError] = useState("");
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const [loading, setIsLoading] = useState(false);
 
@@ -45,18 +50,38 @@ export default function Login() {
         else setPasswordError("");
     }
 
-    async function signIn() {
+    function setConfirmPasswordWithValidation(_password: string) {
+        setConfirmPassword(_password);
+        if (_password.length < 6)
+            setConfirmPasswordError(
+                "Password must be at least 6 characters long!",
+            );
+        else if (_password !== password)
+            setConfirmPasswordError("Passwords must match!");
+        else setConfirmPasswordError("");
+    }
+
+    async function signUp() {
         setIsLoading(true);
         try {
-            const user = await signInWithEmailAndPassword(
+            const userCredential = await createUserWithEmailAndPassword(
                 auth,
                 email,
                 password,
             );
-            if (user) router.replace("/(tabs)");
+            const user = userCredential.user;
+
+            await set(ref(db, "users/" + user.uid), {
+                uid: user.uid,
+                fullName: fullname,
+                email: user.email,
+                createdAt: new Date().toISOString(),
+            });
+
+            router.replace("/(tabs)");
         } catch (err: any) {
             console.error(err);
-            alert("Sign in failed: " + err.message);
+            alert("Sign up failed: " + err.message);
         }
         setIsLoading(false);
     }
@@ -71,8 +96,8 @@ export default function Login() {
                 />
                 <VStack space="lg" className="w-2/3">
                     <Center>
-                        <Box className="relative h-28 w-[260px]">
-                            <Heading size="5xl">WELCOME</Heading>
+                        <Box className="relative h-28 w-[245px]">
+                            <Heading size="5xl">REGISTER</Heading>
                             <Heading
                                 size="4xl"
                                 className="absolute left-0 bottom-0"
@@ -88,6 +113,19 @@ export default function Login() {
                         </Box>
                     </Center>
 
+                    <VStack space="sm">
+                        <Input
+                            variant="outline"
+                            size="md"
+                            className="rounded-3xl"
+                        >
+                            <InputField
+                                placeholder="Enter your fullname here..."
+                                value={fullname}
+                                onChangeText={setFullName}
+                            />
+                        </Input>
+                    </VStack>
                     <VStack space="sm">
                         <Input
                             variant="outline"
@@ -136,30 +174,52 @@ export default function Login() {
                         )}
                     </VStack>
 
+                    <VStack space="sm">
+                        <Input
+                            variant="outline"
+                            size="md"
+                            className="rounded-3xl"
+                        >
+                            <InputField
+                                placeholder="Enter your password here..."
+                                type={showConfirmPassword ? "text" : "password"}
+                                value={confirmPassword}
+                                onChangeText={setConfirmPasswordWithValidation}
+                            />
+                            <InputSlot
+                                onPress={() =>
+                                    setShowConfirmPassword(!showConfirmPassword)
+                                }
+                                className="px-2"
+                            >
+                                <InputIcon
+                                    as={
+                                        showConfirmPassword
+                                            ? EyeOffIcon
+                                            : EyeIcon
+                                    }
+                                    size="md"
+                                />
+                            </InputSlot>
+                        </Input>
+                        {confirmPasswordError !== "" && (
+                            <Text className="text-red-500 font-bold">
+                                {confirmPasswordError}
+                            </Text>
+                        )}
+                    </VStack>
+
                     <Button
                         size="md"
                         variant="solid"
                         action="primary"
-                        onPress={signIn}
+                        onPress={signUp}
                         className="rounded-3xl bg-up-blue"
                     >
                         {loading && <ButtonSpinner className="text-gray-500" />}
-                        <ButtonText>Login</ButtonText>
+                        <ButtonText>Register</ButtonText>
                         <ButtonIcon as={LogInIcon} />
                     </Button>
-
-                    <VStack space="md" className="items-center mt-12">
-                        <Text size="xl">{"Don't have an account yet?"}</Text>
-                        <Button
-                            size="md"
-                            variant="solid"
-                            action="primary"
-                            onPress={() => router.navigate("/register")}
-                            className="rounded-3xl bg-up-blue w-full"
-                        >
-                            <ButtonText>Register</ButtonText>
-                        </Button>
-                    </VStack>
                 </VStack>
             </Box>
         </SafeAreaView>
