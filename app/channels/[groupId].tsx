@@ -7,8 +7,9 @@ import { VStack } from "@/components/ui/vstack";
 import { Button, ButtonIcon } from "@/components/ui/button";
 import { SendIcon } from "lucide-react-native";
 import { auth, db } from "@/constants/firebase";
-import { ref, onValue, push, serverTimestamp, off } from "firebase/database";
-import { useLocalSearchParams } from "expo-router"; // ✅ for getting route params
+import { ref, onValue, push, serverTimestamp, off, get } from "firebase/database";
+import { Stack, useLocalSearchParams } from "expo-router"; // ✅ for getting route params
+import Navbar from "@/components/Navbar";
 
 type Message = {
     id: string;
@@ -23,19 +24,32 @@ export default function Channels() {
     const [msg, setMsg] = useState("");
     const [messages, setMessages] = useState<Message[]>([]);
     const scrollRef = useRef<ScrollView>(null);
+    const [groupName, setGroupName] = useState("");
 
     useEffect(() => {
-        if (!groupId) return; // ⚠️ block if no groupId
+        if (!groupId) return;
 
+        const groupRef = ref(db, `groups/${groupId}`);
         const groupMessagesRef = ref(db, `groups/${groupId}/messages`);
         const usersRef = ref(db, "users");
 
         let userData: Record<string, any> = {};
 
+        // ✅ Fetch group name once
+        get(groupRef).then((snap) => {
+            if (snap.exists()) {
+                setGroupName(snap.val().name || "Unnamed Group");
+            } else {
+                setGroupName("Unknown Group");
+            }
+        });
+
+        // ✅ Listen to users
         const usersUnsub = onValue(usersRef, (snap) => {
             userData = snap.val() || {};
         });
 
+        // ✅ Listen to messages
         const messagesUnsub = onValue(groupMessagesRef, (snap) => {
             const msgData = snap.val() || {};
 
@@ -89,76 +103,88 @@ export default function Channels() {
     }
 
     return (
-        <SafeAreaView>
-            <VStack className="w-full flex-1 px-2">
-                {groupId ? (
-                    <>
-                        <ScrollView
-                            ref={scrollRef}
-                            className="flex-1 mb-2 w-full"
-                            contentContainerStyle={{ paddingVertical: 10 }}
-                        >
-                            {messages.map((m) => {
-                                const isOwnMessage =
-                                    m.senderEmail === auth.currentUser?.email;
+        <>
+            <Stack.Screen
+                options={{
+                    title: groupName || "Loading...",
+                }}
+            />
+            <SafeAreaView style={{ flex: 1 }}>
+                <Navbar />
+                <VStack className="w-full h-full flex-1 px-2">
+                    {groupId ? (
+                        <>
+                            <ScrollView
+                                ref={scrollRef}
+                                className="flex-1 mb-2 w-full"
+                                contentContainerStyle={{ paddingVertical: 10 }}
+                            >
+                                {messages.map((m) => {
+                                    const isOwnMessage =
+                                        m.senderEmail ===
+                                        auth.currentUser?.email;
 
-                                return (
-                                    <VStack
-                                        key={m.id}
-                                        className={`my-1 w-full ${
-                                            isOwnMessage
-                                                ? "items-end"
-                                                : "items-start"
-                                        }`}
-                                    >
-                                        {!isOwnMessage && (
-                                            <Text className="text-xs text-gray-500">
-                                                {m.senderName}
-                                            </Text>
-                                        )}
-                                        <Text
-                                            className={`p-2 rounded-lg text-white max-w-[70%] ${
+                                    return (
+                                        <VStack
+                                            key={m.id}
+                                            className={`my-1 w-full ${
                                                 isOwnMessage
-                                                    ? "bg-up-blue"
-                                                    : "bg-up-gold"
+                                                    ? "items-end"
+                                                    : "items-start"
                                             }`}
                                         >
-                                            {m.text}
-                                        </Text>
-                                    </VStack>
-                                );
-                            })}
-                        </ScrollView>
+                                            {!isOwnMessage && (
+                                                <Text className="text-xs text-gray-500">
+                                                    {m.senderName}
+                                                </Text>
+                                            )}
+                                            <Text
+                                                className={`p-2 rounded-lg text-white max-w-[70%] ${
+                                                    isOwnMessage
+                                                        ? "bg-up-blue"
+                                                        : "bg-up-gold"
+                                                }`}
+                                            >
+                                                {m.text}
+                                            </Text>
+                                        </VStack>
+                                    );
+                                })}
+                            </ScrollView>
 
-                        <HStack className="items-center w-full py-2" space="md">
-                            <Input
-                                variant="outline"
-                                size="md"
-                                className="rounded-3xl flex-1"
+                            <HStack
+                                className="items-center w-full py-2"
+                                space="md"
                             >
-                                <InputField
-                                    placeholder="Enter your message here..."
-                                    type="text"
-                                    value={msg}
-                                    onChangeText={setMsg}
-                                />
-                            </Input>
-                            <Button
-                                onPress={sendMessage}
-                                className="rounded-full bg-up-red"
-                            >
-                                <ButtonIcon as={SendIcon} />
-                            </Button>
-                        </HStack>
-                    </>
-                ) : (
-                    <VStack className="flex-1 justify-center items-center">
-                        <Text className="text-lg text-gray-500">
-                            No group selected.
-                        </Text>
-                    </VStack>
-                )}
-            </VStack>
-        </SafeAreaView>
+                                <Input
+                                    variant="outline"
+                                    size="md"
+                                    className="rounded-3xl flex-1"
+                                >
+                                    <InputField
+                                        placeholder="Enter your message here..."
+                                        type="text"
+                                        value={msg}
+                                        onChangeText={setMsg}
+                                    />
+                                </Input>
+                                <Button
+                                    onPress={sendMessage}
+                                    className="rounded-full bg-up-red"
+                                >
+                                    <ButtonIcon as={SendIcon} />
+                                </Button>
+                            </HStack>
+                        </>
+                    ) : (
+                        <VStack className="flex-1 justify-center items-center">
+                            <Text className="text-lg text-gray-500">
+                                No group selected.
+                            </Text>
+                        </VStack>
+                    )}
+                </VStack>
+            </SafeAreaView>
+        </>
     );
 }

@@ -110,8 +110,7 @@ export default function Groups() {
                             variant="outline"
                             className="justify-start"
                             onPress={() => {
-                                Alert.alert(`Selected group: ${group.name}`);
-                                router.push(`/channels/${group.id}`);
+                                router.replace(`/channels/${group.id}`);
                             }}
                         >
                             <Text>{group.name}</Text>
