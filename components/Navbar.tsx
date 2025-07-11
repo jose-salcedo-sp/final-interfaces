@@ -12,6 +12,7 @@ import { Button, ButtonIcon } from "./ui/button";
 import { MenuIcon } from "./ui/icon";
 import { Text } from "./ui/text";
 import { VStack } from "./ui/vstack";
+import { auth } from "@/constants/firebase";
 
 type MenuRoute = {
     name: string;
@@ -64,7 +65,10 @@ export default function Navbar() {
 
                 <ActionsheetContent>
                     <ActionsheetItem>
-                        <ActionsheetItemText className="font-extrabold">
+                        <ActionsheetItemText className="font-extrabold" onPress={() => {
+                            auth.signOut();
+                            router.replace("../login");
+                        }}>
                             Sign out
                         </ActionsheetItemText>
                     </ActionsheetItem>
