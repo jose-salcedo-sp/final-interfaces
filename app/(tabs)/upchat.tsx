@@ -75,6 +75,7 @@ export default function UPChat() {
 
         const messagesRef = ref(db, "ai-messages");
 
+        // 1️⃣ Push user message to Firebase
         await push(messagesRef, {
             text: msg,
             createdAt: serverTimestamp(),
@@ -82,7 +83,45 @@ export default function UPChat() {
             senderEmail: user.email,
         });
 
-        setMsg("");
+        const userMessage = msg; // store before clearing
+        setMsg(""); // clear input
+
+        try {
+            // 2️⃣ Send POST request to bot endpoint
+            const response = await fetch(
+                "http://10.7.19.139:8069/api/v1/whatsapp/answers",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        from_phone: "3331573115",
+                        message: userMessage,
+                    }),
+                },
+            );
+
+            if (!response.ok) {
+                console.error("Bot API error:", response.statusText);
+                return;
+            }
+
+            const data = await response.json();
+
+            // Assume the bot's reply is in data.message
+            const botReply = data.data.join(" ");
+
+            // 3️⃣ Push bot reply to Firebase
+            await push(messagesRef, {
+                text: botReply,
+                createdAt: serverTimestamp(),
+                senderId: "bot",
+                senderEmail: "bot@up.edu.mx",
+            });
+        } catch (error) {
+            console.error("Failed to fetch bot reply:", error);
+        }
     }
 
     return (
@@ -98,7 +137,7 @@ export default function UPChat() {
                             className={`my-1 w-full ${isOwnMessage ? "items-end" : "items-start"}`}
                         >
                             <Text className="text-xs text-gray-500">
-                                {m.senderName}
+                                {m.senderEmail === "bot@up.edu.mx" ? "UP AI" : m.senderName}
                             </Text>
                             <Text
                                 className={`p-2 rounded-lg text-white max-w-[70%] ${
