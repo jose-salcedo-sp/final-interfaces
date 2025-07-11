@@ -106,6 +106,7 @@ export default function Profile() {
     <ScrollView
             contentContainerStyle={{ paddingVertical: 16, paddingHorizontal: 20 }}
             showsVerticalScrollIndicator={false}
+            className="max-h-[90%]"
           >
     <Center>
         <VStack space='2xl' className='mt-10 min-w-72'>

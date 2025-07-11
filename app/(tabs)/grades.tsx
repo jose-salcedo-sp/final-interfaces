@@ -123,6 +123,7 @@ export default function Career() {
       <ScrollView
         contentContainerStyle={{ paddingVertical: 16, paddingHorizontal: 20 }}
         showsVerticalScrollIndicator={false}
+        className="max-h-[90%]"
       >
         <VStack space="2xl" className="mt-10">
           <Heading size="2xl" className="text-center">Grades</Heading>

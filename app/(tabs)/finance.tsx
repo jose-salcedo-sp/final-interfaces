@@ -56,20 +56,20 @@ export default function Career() {
       if (firebaseUser?.email) {
         try {
           console.log("Fetching user data for:", firebaseUser.email);
-          
+
           const usersRef = ref(db, 'users');
           const snapshot = await get(usersRef);
 
           if (snapshot.exists()) {
             const users = snapshot.val();
-            const foundUser = Object.entries(users).find(([_, userData]) => 
+            const foundUser = Object.entries(users).find(([_, userData]) =>
               (userData as any).email === firebaseUser.email
             );
 
             if (foundUser) {
               const [userId, userData] = foundUser;
-              setUser({ 
-                id: userId, 
+              setUser({
+                id: userId,
                 ...userData as Omit<User, 'id'>,
                 studies: {
                   ...(userData as any).studies,
@@ -113,6 +113,7 @@ export default function Career() {
       <ScrollView
         contentContainerStyle={{ paddingVertical: 16, paddingHorizontal: 20 }}
         showsVerticalScrollIndicator={false}
+        className="max-h-[90%]"
       >
         <VStack space="2xl" className="mt-10">
           <Heading size="2xl" className="text-center">Finance</Heading>
