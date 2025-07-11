@@ -1,35 +1,116 @@
 import { Card } from "@/components/ui/card";
+import { Center } from '@/components/ui/center';
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { AddIcon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 
-export default function Profile() {
-    let current_gpa = 3.8
 
-  let courses = [
-  { courseName: "Calculus I", Grade: "B+", isCompleted: true },
-  { courseName: "General Chemistry", Grade: "A-", isCompleted: true },
-  { courseName: "Introduction to Psychology", Grade: "A", isCompleted: true },
-  { courseName: "English Composition", Grade: "B", isCompleted: true },
-  { courseName: "CS Fundamentals", Grade: "B", isCompleted: false },
-  { courseName: "Principles of Economics", Grade: "A+", isCompleted: false },
-  { courseName: "Cell Biology", Grade: "C+", isCompleted: true },
-  { courseName: "Linear Algebra", Grade: "C", isCompleted: false },
-  { courseName: "Public Speaking", Grade: "A", isCompleted: true },
-  { courseName: "Data Structures", Grade: "D", isCompleted: false },
-  { courseName: "Databases", Grade: "A", isCompleted: true },
-];
+import { auth, db } from "@/constants/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { get, ref } from "firebase/database";
 
-const completed_courses = courses.filter(course => course.isCompleted);
-const current_courses = courses.filter(course => !course.isCompleted);
-  let [completed_courses_count, setCourses] = useState(5);
+
+interface Course {
+  courseName: string;
+  Grade: string;
+  isCompleted: boolean;
+}
+
+interface User {
+  id: string;
+  fullName: string;
+  email: string;
+  studies: {
+    major:string
+    start_date: string;
+    end_date: string;
+    status: string;
+    semester: string;
+    courses: Course[];
+    credits: number;
+    current_gpa: number;
+    };
+}
+
+export default function Career() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [completed_courses_count, setCoursesCount] = useState(5);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser?.email) {
+        try {
+          console.log("Fetching user data for:", firebaseUser.email);
+          
+          const usersRef = ref(db, 'users');
+          const snapshot = await get(usersRef);
+
+          if (snapshot.exists()) {
+            const users = snapshot.val();
+            const foundUser = Object.entries(users).find(([_, userData]) => 
+              (userData as any).email === firebaseUser.email
+            );
+
+            if (foundUser) {
+              const [userId, userData] = foundUser;
+              setUser({ 
+                id: userId, 
+                ...userData as Omit<User, 'id'>,
+                studies: {
+                  ...(userData as any).studies,
+                  // Ensure courses array exists
+                  courses: (userData as any).studies?.courses || []
+                }
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching user:", error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        console.warn("No user is currently logged in");
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <Center>
+        <SafeAreaView>
+          <Text>Loading...</Text>
+        </SafeAreaView>
+      </Center>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Center>
+        <SafeAreaView>
+          <Text>User not found</Text>
+        </SafeAreaView>
+      </Center>
+    );
+  }
+
+
+  const coursesArray = Object.values(user.studies.courses);
+  const completed_courses = coursesArray.filter(course => course.isCompleted);
+  const current_courses = coursesArray.filter(course => !course.isCompleted);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -47,7 +128,7 @@ const current_courses = courses.filter(course => !course.isCompleted);
                 Current GPA
                 </Heading>
                 <Text className="text-xl text-center text-black bg-up-white rounded-full px-6 py-4">
-                {current_gpa + "/4"}
+                {user.studies.current_gpa + "/4"}
                 </Text>
             </VStack>
             </Card>
@@ -88,7 +169,7 @@ const current_courses = courses.filter(course => !course.isCompleted);
                     </HStack>
                 ))}
                 {completed_courses_count < completed_courses.length - 1 && (
-                <Button onPress={() => setCourses(completed_courses_count + 5)} className="bg-up-red rounded-3xl">
+                <Button onPress={() => setCoursesCount(completed_courses_count + 5)} className="bg-up-red rounded-3xl">
                     <ButtonText>
                         See More
                     </ButtonText>
