@@ -24,6 +24,11 @@ interface Course {
   isCompleted: boolean;
 }
 
+interface FinancialMovement {
+  date: string;
+  ammount: number;
+}
+
 interface User {
   id: string;
   fullName: string;
@@ -38,6 +43,12 @@ interface User {
     credits: number;
     current_gpa: number;
     };
+
+  finances: {
+    balance: number;
+    due_date: string;
+    movements: FinancialMovement[];
+  }
 }
 
 export default function Career() {
