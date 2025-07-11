@@ -7,7 +7,6 @@ import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
@@ -101,9 +100,8 @@ export default function Career() {
   if (loading) {
     return (
       <Center>
-        <SafeAreaView>
+
           <Text>Loading...</Text>
-        </SafeAreaView>
       </Center>
     );
   }
@@ -111,9 +109,7 @@ export default function Career() {
   if (!user) {
     return (
       <Center>
-        <SafeAreaView>
           <Text>User not found</Text>
-        </SafeAreaView>
       </Center>
     );
   }
@@ -124,7 +120,6 @@ export default function Career() {
   const current_courses = coursesArray.filter(course => !course.isCompleted);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
       <ScrollView
         contentContainerStyle={{ paddingVertical: 16, paddingHorizontal: 20 }}
         showsVerticalScrollIndicator={false}
@@ -192,6 +187,5 @@ export default function Career() {
 
         </VStack>
       </ScrollView>
-    </SafeAreaView>
   );
 }

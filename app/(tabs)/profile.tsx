@@ -8,10 +8,10 @@ import { VStack } from "@/components/ui/vstack";
 import { auth, db } from "@/constants/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { get, ref } from "firebase/database";
+import { ScrollView } from "react-native";
 
 
 import React, { useEffect, useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import { router } from "expo-router";
 
@@ -86,9 +86,7 @@ export default function Profile() {
   if (loading) {
     return (
       <Center>
-        <SafeAreaView>
           <Text>Loading...</Text>
-        </SafeAreaView>
       </Center>
     );
   }
@@ -96,9 +94,7 @@ export default function Profile() {
   if (!user) {
     return (
       <Center>
-        <SafeAreaView>
           <Text>User not found</Text>
-        </SafeAreaView>
       </Center>
     );
   }
@@ -107,9 +103,12 @@ export default function Profile() {
 
 
   return (
+    <ScrollView
+            contentContainerStyle={{ paddingVertical: 16, paddingHorizontal: 20 }}
+            showsVerticalScrollIndicator={false}
+          >
     <Center>
-      <SafeAreaView>
-        <VStack space='2xl' className='mt-10'>
+        <VStack space='2xl' className='mt-10 min-w-72'>
           <Heading size="2xl" className="text-center">Profile</Heading>
 
           <VStack space="xs">
@@ -142,9 +141,9 @@ export default function Profile() {
             </Button>
           </VStack>
 
-          <Card className="bg-up-gold rounded-3xl">
+          <Card className="bg-up-gold rounded-3xl min-w-72">
             <Center>
-              <VStack space="md">
+              <VStack space="md" className="w-4/5">
                 <VStack space="xs">
                   <Heading size="md" className="text-up-white text-center">Career</Heading>
                   <Text className="text-black bg-up-white text-center rounded-full px-4">{user.studies.major}</Text>
@@ -168,7 +167,7 @@ export default function Profile() {
             </Center>
           </Card>
         </VStack>
-      </SafeAreaView>
     </Center>
+              </ScrollView>
   );
 }

@@ -9,20 +9,12 @@ import React from "react";
 import { Pressable, ScrollView } from "react-native";
 
 export default function Profile() {
-    let name: string = "Emiliano!";
-    let email: string = "0252496@up.edu.mx";
-    let password: string = "***********";
-
-    let career: string = "Computer Systems Engineering";
-    let career_start_date: string = "Aug 2022";
-    let career_end_date: string = "June 2027";
-    let career_status: string = "Enrolled";
 
     return (
         <ScrollView>
             <VStack space="2xl" className="mt-10">
                 <Heading size="2xl" className="text-center">
-                    Welcome, {name}
+                    Welcome!
                 </Heading>
 
                 <Pressable
